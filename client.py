@@ -38,9 +38,23 @@ class Client:
             self.oauth2_code = access_token
             return True
 
+    
+    def parse_tags(tags):
+        res_string = "" 
+        for tag in tags:
+            res_string += f"tag:{tag}"
+            res_string += "%20"
+        res_string = res_string[:-3]
+        return res_string
 
-    def filter_string(self, file_type='wav', max_duration=MAX_DURATION):
-        return f'type:{file_type} duration:[* TO {max_duration}]'
+
+    def parse_duration(from=0, to):
+        res_string = ""
+
+    def parse_samplerate(rate):
+        res_string = ""
+        res_string += f"samplerate:{rate}"
+        return res_string
 
 
     def get_random_sound_data(self, base_url, headers, query='*', fields='id,name,duration,tags'):
