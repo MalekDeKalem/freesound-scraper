@@ -16,7 +16,6 @@ class Client:
         self.oauth2_code = ''
 
 
-
     def oauth2_authorize(self):
             oauth = OAuth2Session(self.client_key, redirect_uri='https://freesound.org/home/app_permissions/permission_granted/')
 
@@ -44,17 +43,19 @@ class Client:
         for tag in tags:
             res_string += f"tag:{tag}"
             res_string += "%20"
-        res_string = res_string[:-3]
+        #res_string = res_string[:-3]
         return res_string
 
 
-    def parse_duration(from=0, to):
-        res_string = ""
+    def parse_duration(from=0, to=15):
+        res_string = f"%5B{from}%20TO%20{to}%5D" 
+        return res_string
 
     def parse_samplerate(rate):
         res_string = ""
         res_string += f"samplerate:{rate}"
         return res_string
+
 
 
     def get_random_sound_data(self, base_url, headers, query='*', fields='id,name,duration,tags'):
