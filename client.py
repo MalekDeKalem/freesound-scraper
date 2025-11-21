@@ -37,8 +37,11 @@ class Client:
             self.oauth2_code = access_token
             return True
 
+    def filter_string(self, tags, sr, duration, format, channels):
+        return f"filter={self.parse_tags(tags)}{self.parse_duration(duration)}{self.parse_samplerate(sr)}{self.parse_format(format}{self.parse_channels(channels)}"
+
     
-    def parse_tags(tags):
+    def parse_tags(self, tags):
         res_string = "" 
         for tag in tags:
             res_string += f"tag:{tag}"
@@ -47,14 +50,21 @@ class Client:
         return res_string
 
 
-    def parse_duration(from=0, to=15):
-        res_string = f"%5B{from}%20TO%20{to}%5D" 
+    def parse_duration(self, from=0, to=15):
+        res_string = f"%5B{from}%20TO%20{to}%5D%20" 
         return res_string
 
-    def parse_samplerate(rate):
+    def parse_samplerate(self, rate):
         res_string = ""
-        res_string += f"samplerate:{rate}"
+        res_string += f"samplerate:{rate}%20"
         return res_string
+
+    def parse_format(self, format):
+        res_string = f"type:{format}%20"
+
+    def parse_channels(self, channels):
+        res_string = f"channels:{channels}"
+
 
 
 
