@@ -61,9 +61,24 @@ class Client:
 
     def parse_format(self, format):
         res_string = f"type:{format}%20"
+        return res_string
 
     def parse_channels(self, channels):
         res_string = f"channels:{channels}"
+        return res_string
+
+    def get_pack_sound_ids(self, pack_id, page_size):
+        params = {
+            'token': self.secret_key,
+            'fields': 'id',
+            'page_size': page_size
+        }
+
+        url = f"{BASE_URL}{PACKS}{pack_id}/{SOUNDS}"
+        res = request.get(url, params=params)
+        data = res.json()
+        sound_ids = data['id']
+        return sound_ids
 
 
 
