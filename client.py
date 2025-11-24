@@ -120,7 +120,7 @@ class Client:
     def download_sample(self, sound_data, target_directory="./"):
         download_headers = {'Authorization': 'Bearer ' + self.oauth2_code}
 
-        url = BASE_URL + SOUNDS + '/' + sound_data['id'] + '/' + DOWNLOAD
+        url = BASE_URL + SOUNDS + sound_data['id'] + DOWNLOAD
         res = requests.get(url, headers=download_headers)
 
         if res.status_code != 200:
