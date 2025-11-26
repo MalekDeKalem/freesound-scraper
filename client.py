@@ -80,7 +80,7 @@ class Client:
 
 
 
-    def get_random_sound_data(self, base_url, headers, query='*', fields='id,name,duration,tags'):
+    def get_random_sound_data(self, base_url, headers, query='*', fields='id,name,duration,tags', page_size=15):
 
 
         initial_params = {
@@ -88,7 +88,7 @@ class Client:
             'query': query,
             'filter': self.filter_string(),
             'fields': fields,
-            'page_size': 15
+            'page_size': page_size
         }
 
         res = requests.get(base_url, headers=headers, params=initial_params)
@@ -98,7 +98,6 @@ class Client:
         if total_results == 0:
             return None
 
-        page_size = 15
         max_pages = min(total_results // page_size + 1, 1000)
         attempts = 10
 
@@ -129,7 +128,7 @@ class Client:
 
         return None
     
-    def download_sample(self, samples, target_directory="./"):
+    def download_samples(self, samples, target_directory="./"):
         download_headers = {'Authorization': 'Bearer ' + self.oauth2_code}
 
         for sample is samples:
