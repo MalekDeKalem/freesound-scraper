@@ -1,5 +1,5 @@
 from requests_oauthlib import OAuth2Session
-from settings import TAGS_TO_IGNORE
+from settings import TAGS_TO_IGNORE, BASE_URL, ACCESS_TOKEN, AUTHORIZE, SOUNDS, DOWNLOAD, PACKS
 import json
 import requests
 import os 
@@ -15,13 +15,43 @@ class Client:
 
 
     def oauth2_authorize(self):
+        
+        TOKEN_URL = "https://freesound.org/apiv2/oauth2/access_token/"
+
+        # Must be form-encoded
+        payload = {
+            "client_id": self.client_key,
+            "client_secret": self.secret_key,
+            "grant_type": "client_credentials"
+        }
+
+        try:
+            res = requests.post(TOKEN_URL, data=payload)  # data= → form-encoded
+            res.raise_for_status()
+
+            token_data = res.json()
+            self.access_token = token_data.get("access_token")
+            print("Access token obtained successfully!")
+            print("Token expires in:", token_data.get("expires_in"), "seconds")
+            print("Scope:", token_data.get("scope"))
+            return self.access_token
+
+        except requests.exceptions.HTTPError as e:
+            print("HTTP error:", e)
+            print("Response content:", res.text)
+            return None
+        except Exception as e:
+            print("Error:", e)
+            return None
+
+    def aoauth2_authorize(self):
             oauth = OAuth2Session(self.client_key, redirect_uri='https://freesound.org/home/app_permissions/permission_granted/')
 
-            authorization_url, state = oauth.authorization_url(BASE_URL + AUTHORIZATION)
+            authorization_url, state = oauth.authorization_url(BASE_URL + AUTHORIZE)
             webbrowser.open_new(authorization_url)
 
             authorization_res=input('type in authorization code: ')
-            res = request.post(
+            res = requests.post(
                 BASE_URL + ACCESS_TOKEN,
                 params = {
                     'client_id': self.client_key,
@@ -65,16 +95,18 @@ class Client:
         return res_string
 
     def get_packsounds(self, pack_id, page_size):
+        headers = {
+            'Authorization': f'Token {self.secret_key}'
+        }
         params = {
-            'token': self.secret_key,
             'fields': 'id,name',
             'page_size': page_size
         }
 
         url = f"{BASE_URL}{PACKS}{pack_id}/{SOUNDS}"
-        res = request.get(url, params=params)
+        res = requests.get(url, params=params, headers=headers)
         data = res.json()
-        sounds = {'id': data['id'], 'name': data['name']}
+        sounds = [{'id': sound['id'], 'name': sound['name']} for sound in data.get('results')]
         return sounds
 
 
@@ -129,11 +161,13 @@ class Client:
         return None
     
     def download_samples(self, samples, target_directory="./"):
-        download_headers = {'Authorization': 'Bearer ' + self.oauth2_code}
+        download_headers = {'Authorization': f'Bearer {self.oauth2_code}'}
+        print(self.oauth2_code)
+        #download_headers = {'Authorization': f'Token {self.secret_key}'}
 
         for sample in samples:
 
-            url = BASE_URL + SOUNDS + sample['id'] + '/' + DOWNLOAD
+            url = f'{BASE_URL}{SOUNDS}{sample['id']}/{DOWNLOAD}'
             res = requests.get(url, headers=download_headers)
 
             if res.status_code != 200:

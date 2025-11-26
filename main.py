@@ -7,9 +7,16 @@ from settings import DEFAULT_TAGS
 
 
 def main(args):
+
+    load_dotenv()
+
+    client_id = os.getenv('CLIENT_ID')
+    api_token = os.getenv('API_TOKEN')
     
-    client = Client(os.getenv('CLIENT_ID'), os.getenv('API_TOKEN'))
+    client = Client(client_id, api_token)
     download_path = args.download_path
+
+    client.oauth2_authorize()
 
     if (args.pack):
         samples_data = client.get_packsounds(pack_id=args.pack, page_size=args.amount)  
