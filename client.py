@@ -6,8 +6,6 @@ import os
 import webbrowser
 
 
-
-
 class Client:
 
     def __init__(self, client_key, secret_key):
@@ -46,7 +44,6 @@ class Client:
         for tag in tags:
             res_string += f"tag:{tag}"
             res_string += "%20"
-        #res_string = res_string[:-3]
         return res_string
 
 
@@ -67,18 +64,18 @@ class Client:
         res_string = f"channels:{channels}"
         return res_string
 
-    def get_pack_sound_ids(self, pack_id, page_size):
+    def get_packsounds(self, pack_id, page_size):
         params = {
             'token': self.secret_key,
-            'fields': 'id',
+            'fields': 'id,name',
             'page_size': page_size
         }
 
         url = f"{BASE_URL}{PACKS}{pack_id}/{SOUNDS}"
         res = request.get(url, params=params)
         data = res.json()
-        sound_ids = data['id']
-        return sound_ids
+        sounds = {'id': data['id'], 'name': data['name']}
+        return sounds
 
 
 
@@ -132,19 +129,22 @@ class Client:
 
         return None
     
-    def download_sample(self, sound_data, target_directory="./"):
+    def download_sample(self, samples, target_directory="./"):
         download_headers = {'Authorization': 'Bearer ' + self.oauth2_code}
 
-        url = BASE_URL + SOUNDS + sound_data['id'] + DOWNLOAD
-        res = requests.get(url, headers=download_headers)
+        for sample is samples:
 
-        if res.status_code != 200:
-            raise Exception(f"Failed to download sound: {res.status_code} - {res.text}")
+            url = BASE_URL + SOUNDS + sample['id'] + '/' + DOWNLOAD
+            res = requests.get(url, headers=download_headers)
+
+            if res.status_code != 200:
+                raise Exception(f"Failed to download sound: {res.status_code} - {res.text}")
 
 
-        with open(target_directory + sound_data['name'], 'wb') as f:
-            f.write(res.content)
-            return True
+            with open(target_directory + sample['name'], 'wb') as f:
+                f.write(res.content)
+                print(f"Downloaded {sample['name']} to target directory {target_directory}");
+        return True
 
 
 
