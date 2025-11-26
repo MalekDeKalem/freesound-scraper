@@ -1,4 +1,4 @@
-from request_oauthlib import OAuth2Session
+from requests_oauthlib import OAuth2Session
 from settings import TAGS_TO_IGNORE
 import json
 import requests
@@ -36,7 +36,7 @@ class Client:
             return True
 
     def filter_string(self, tags, sr, duration, format, channels):
-        return f"filter={self.parse_tags(tags)}{self.parse_duration(duration)}{self.parse_samplerate(sr)}{self.parse_format(format}{self.parse_channels(channels)}"
+        return f"filter={self.parse_tags(tags)}{self.parse_duration(duration)}{self.parse_samplerate(sr)}{self.parse_format(format)}{self.parse_channels(channels)}"
 
     
     def parse_tags(self, tags):
@@ -47,8 +47,8 @@ class Client:
         return res_string
 
 
-    def parse_duration(self, from=0, to=15):
-        res_string = f"%5B{from}%20TO%20{to}%5D%20" 
+    def parse_duration(self, duration):
+        res_string = f"%5B{duration[0]}%20TO%20{duration[1]}%5D%20" 
         return res_string
 
     def parse_samplerate(self, rate):
@@ -122,7 +122,7 @@ class Client:
                     'id': random_sound['id'],
                     'name': random_sound['name'],
                     'duration': random_sound['duration'],
-                    'description': random_sound['description']
+                    'description': random_sound['description'],
                     'tags': random_sound['tags']
                 }
 
@@ -131,7 +131,7 @@ class Client:
     def download_samples(self, samples, target_directory="./"):
         download_headers = {'Authorization': 'Bearer ' + self.oauth2_code}
 
-        for sample is samples:
+        for sample in samples:
 
             url = BASE_URL + SOUNDS + sample['id'] + '/' + DOWNLOAD
             res = requests.get(url, headers=download_headers)

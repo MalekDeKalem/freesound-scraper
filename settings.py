@@ -8,7 +8,7 @@ BASE_URL = "https://freesound.org/apiv2/"
 SOUNDS = "sounds/"
 DOWNLOAD = "download/"
 PACKS = "packs/"
-TOKEN_PARAM = "&token=" + os.getenv('API_TOKEN')
+TOKEN_PARAM = "&token=" + f"{os.getenv('API_TOKEN')}"
 ACCESS_TOKEN = "oauth2/access_token/"
 AUTHORIZE = "oauth2/authorize/"
 DEFAULT_TAGS = ["kick"]
