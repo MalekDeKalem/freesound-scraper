@@ -35,7 +35,7 @@ class Client:
         res.raise_for_status()
 
         token_data = res.json()
-        self.access_token = token_data["access_token"]
+        self.oauth2_code = token_data["access_token"]
         return token_data
 
 
