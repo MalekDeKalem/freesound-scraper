@@ -11,38 +11,33 @@ class Client:
     def __init__(self, client_key, secret_key):
         self.client_key = client_key
         self.secret_key = secret_key
-        self.oauth2_code = ''
+        self.redirect_uri = "http://localhost:5000/callback"
+        self.oauth2_code = None
 
 
     def oauth2_authorize(self):
-        
-        TOKEN_URL = "https://freesound.org/apiv2/oauth2/access_token/"
+        auth_url = f"https://freesound.org/apiv2/oauth2/authorize/?client_id={self.client_key}&response_type=code&redirect_uri={self.redirect_uri}"
+        webbrowser.open_new(auth_url)
 
-        # Must be form-encoded
-        payload = {
+
+    def fetch_access_token(self, code):
+        TOKEN_URL = "https://freesound.org/apiv2/oauth2/token/"
+
+        data = {
             "client_id": self.client_key,
             "client_secret": self.secret_key,
-            "grant_type": "client_credentials"
+            "grant_type": "authorization_code",
+            "code": code,
+            "redirect_uri": self.redirect_uri
         }
 
-        try:
-            res = requests.post(TOKEN_URL, data=payload)  # data= → form-encoded
-            res.raise_for_status()
+        res = requests.post(TOKEN_URL, data=data)
+        res.raise_for_status()
 
-            token_data = res.json()
-            self.access_token = token_data.get("access_token")
-            print("Access token obtained successfully!")
-            print("Token expires in:", token_data.get("expires_in"), "seconds")
-            print("Scope:", token_data.get("scope"))
-            return self.access_token
+        token_data = res.json()
+        self.access_token = token_data["access_token"]
+        return token_data
 
-        except requests.exceptions.HTTPError as e:
-            print("HTTP error:", e)
-            print("Response content:", res.text)
-            return None
-        except Exception as e:
-            print("Error:", e)
-            return None
 
     def aoauth2_authorize(self):
             oauth = OAuth2Session(self.client_key, redirect_uri='https://freesound.org/home/app_permissions/permission_granted/')
