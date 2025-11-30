@@ -1,4 +1,5 @@
 from client import Client
+from oauthcallbackhandler import OAuthCallbackHandler
 import argparse
 import os
 from dotenv import load_dotenv    
@@ -17,6 +18,12 @@ def main(args):
     download_path = args.download_path
 
     client.oauth2_authorize()
+    handler = OAuthCallbackHandler()
+    handler.start_server()
+    handler.do_GET()
+    code = handler.get_auth_code()
+
+    print("This is your auth code! ", code)
 
     if (args.pack):
         samples_data = client.get_packsounds(pack_id=args.pack, page_size=args.amount)  
