@@ -1,5 +1,5 @@
 from client import Client
-from oauthcallbackhandler import OAuthCallbackHandler
+from oauthcallbackhandler import OAuthCallbackHandler, OAuthServer
 import argparse
 import os
 from dotenv import load_dotenv    
@@ -17,13 +17,17 @@ def main(args):
     client = Client(client_id, api_token)
     download_path = args.download_path
 
-    client.oauth2_authorize()
-    handler = OAuthCallbackHandler()
-    handler.start_server()
-    handler.do_GET()
-    code = handler.get_auth_code()
 
+    oauth_server = OAuthServer()
+    print('Opening Browser for Freesound authorization...')
+
+    client.oauth2_authorize()
+
+    code = oauth_server.get_oauth_code(client_id)
     print("This is your auth code! ", code)
+
+    token_info = client.fetch_access_token(code)
+    print("Access token:", token_info["access_token"])
 
     if (args.pack):
         samples_data = client.get_packsounds(pack_id=args.pack, page_size=args.amount)  

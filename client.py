@@ -21,7 +21,7 @@ class Client:
 
 
     def fetch_access_token(self, code):
-        TOKEN_URL = "https://freesound.org/apiv2/oauth2/token/"
+        TOKEN_URL = "https://freesound.org/apiv2/oauth2/access_token/"
 
         data = {
             "client_id": self.client_key,
