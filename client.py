@@ -4,6 +4,7 @@ import json
 import requests
 import os 
 import webbrowser
+from pathlib import Path
 
 
 class Client:
@@ -168,8 +169,12 @@ class Client:
             if res.status_code != 200:
                 raise Exception(f"Failed to download sound: {res.status_code} - {res.text}")
 
+            
+            Path(target_directory).mkdir(parents=True, exist_ok=True)
+            output_file = Path(target_directory + '/' + sample['name'])
 
-            with open(target_directory + sample['name'], 'wb') as f:
+
+            with open(output_file, 'wb') as f:
                 f.write(res.content)
                 print(f"Downloaded {sample['name']} to target directory {target_directory}");
         return True
