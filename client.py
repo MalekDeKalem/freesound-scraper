@@ -5,6 +5,8 @@ import requests
 import os 
 import webbrowser
 from pathlib import Path
+from requests.exceptions import ChunkedEncodingError, ConnectionError
+from http.client import IncompleteRead
 
 
 class Client:
@@ -156,27 +158,34 @@ class Client:
 
         return None
     
-    def download_samples(self, samples, target_directory="./"):
+    def download_samples(self, samples, target_directory="./", retries=5, chunk_size=8192):
         download_headers = {'Authorization': f'Bearer {self.oauth2_code}'}
         print(self.oauth2_code)
-        #download_headers = {'Authorization': f'Token {self.secret_key}'}
+        Path(target_directory).mkdir(parents=True, exist_ok=True)
 
         for sample in samples:
 
+            attempt = 1
             url = f'{BASE_URL}{SOUNDS}{sample['id']}/{DOWNLOAD}'
-            res = requests.get(url, headers=download_headers)
+            while attempt <= retries:
+                try:
+                    with requests.get(url, headers=download_headers, stream=True, timeout=30) as r:
 
-            if res.status_code != 200:
-                raise Exception(f"Failed to download sound: {res.status_code} - {res.text}")
-
-            
-            Path(target_directory).mkdir(parents=True, exist_ok=True)
-            output_file = Path(target_directory + '/' + sample['name'])
+                        
+                        output_file = Path(target_directory + '/' + sample['name'])
 
 
-            with open(output_file, 'wb') as f:
-                f.write(res.content)
-                print(f"Downloaded {sample['name']} to target directory {target_directory}");
-        return True
+                        with open(output_file, 'wb') as f:
+                            for chunk in r.iter_content(chunk_size=chunk_size):
+                                if (chunk):
+                                    f.write(chunk)
+                            print(f"Downloaded {sample['name']} to target directory {target_directory}");
+                            break
+                except (ChunkedEncodingError, ConnectionError, IncompleteRead) as e:
+                    print(f"Download Error, attempt {attempt}/{retries}: {e}")
+                    attempt += 1
+                    time.sleep(1)
+                    print("Failed moving to next sample")
+
 
 
