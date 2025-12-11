@@ -7,6 +7,7 @@ import webbrowser
 from pathlib import Path
 from requests.exceptions import ChunkedEncodingError, ConnectionError
 from http.client import IncompleteRead
+from multiprocessing import Process
 
 
 class Client:
@@ -179,7 +180,7 @@ class Client:
                             for chunk in r.iter_content(chunk_size=chunk_size):
                                 if (chunk):
                                     f.write(chunk)
-                            print(f"Downloaded {sample['name']} to target directory {target_directory}");
+                            print(f"Downloaded {sample['name']} to target directory {target_directory}")
                             break
                 except (ChunkedEncodingError, ConnectionError, IncompleteRead) as e:
                     print(f"Download Error, attempt {attempt}/{retries}: {e}")
@@ -187,5 +188,13 @@ class Client:
                     time.sleep(1)
                     print("Failed moving to next sample")
 
+    def multi_process_download_samples(self, samples, processes=1, target_directory="./"):
+        it = iter(samples)
+        samples_list = [samples[i:i+processes] for i in range(0, len(samples), processes)]
+        process_list = [Process(target=self.download_samples, args=(sample_list, target_directory)) for sample_list in samples_list]
 
+        for process in process_list:
+            process.start()
 
+        for process in process_list:
+                    process.join()

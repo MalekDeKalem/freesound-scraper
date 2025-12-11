@@ -6,7 +6,6 @@ from dotenv import load_dotenv
 from settings import DEFAULT_TAGS
 
 
-
 def main(args):
 
     load_dotenv()
@@ -29,9 +28,14 @@ def main(args):
     token_info = client.fetch_access_token(code)
     print("Access token:", token_info["access_token"])
 
-    if (args.pack):
-        samples_data = client.get_packsounds(pack_id=args.pack, page_size=args.amount)  
-        success = client.download_samples(samples=samples_data, target_directory=args.download_path)  
+    if args.pack:
+        samples_data = client.get_packsounds(pack_id=args.pack, page_size=args.amount)
+
+        if args.processes > 1:
+            success = client.multi_process_download_samples(samples=samples_data, target_directory=args.download_path)
+        else:
+            success = client.download_samples(samples=samples_data, target_directory=args.download_path)
+
     else:
         filter_string = client.filter_string(tags=args.tags, duration=(args.min_length, args.max_length), sr=args.sample_rate, format=args.format, channels=args.channels)
 
@@ -47,8 +51,9 @@ if __name__ == "__main__":
     parser.add_argument("-qu", "--query", default="*",type=str, help="the query used for searching")
     parser.add_argument("-ch", "--channels", type=int, default=1, help="define the amount of channels")
     parser.add_argument("-dp", "--download-path", type=str, default="./", help="define the path where files are downloaded")
-    parser.add_argument("-n", "--amount", type=int, default=15, help="amount of sound files you want to have");
+    parser.add_argument("-n", "--amount", type=int, default=15, help="amount of sound files you want to have")
     parser.add_argument("-p", "--pack", type=int, help="enter the id of the pack you want to have")
+    parser.add_argument("-proc", "--processes", type=int, default=1, help="enter the number of threads that need to be used while downloading")
     args = parser.parse_args()
 
     main(args)
