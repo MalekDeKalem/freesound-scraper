@@ -37,7 +37,15 @@ def main(args):
             success = client.download_samples(samples=samples_data, target_directory=args.download_path)
 
     else:
-        filter_string = client.filter_string(tags=args.tags, duration=(args.min_length, args.max_length), sr=args.sample_rate, format=args.format, channels=args.channels)
+        duration = (args.min_length, args.max_length)
+        samples_data = client.get_sounds(page_size=args.amount, query=args.query, tags=args.tags, duration=duration, sr=args.sample_rate, form=args.format, channels=args.channels)
+
+        if args.processes > 1:
+            success = client.multi_process_download_samples(samples=samples_data, target_directory=args.download_path)
+        else:
+            success = client.download_samples(samples=samples_data, target_directory=args.download_path)
+
+
 
 
 

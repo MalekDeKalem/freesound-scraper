@@ -6,6 +6,7 @@ TAGS_TO_IGNORE = ["Blowjob-Sound", "Asmr", "Female-Licking-Sound", "climax", "he
 MAX_DURATION = 3
 BASE_URL = "https://freesound.org/apiv2/"
 SOUNDS = "sounds/"
+SEARCH = "search/"
 DOWNLOAD = "download/"
 PACKS = "packs/"
 TOKEN_PARAM = "&token=" + f"{os.getenv('API_TOKEN')}"

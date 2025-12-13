@@ -1,5 +1,5 @@
 from requests_oauthlib import OAuth2Session
-from settings import TAGS_TO_IGNORE, BASE_URL, ACCESS_TOKEN, AUTHORIZE, SOUNDS, DOWNLOAD, PACKS
+from settings import TAGS_TO_IGNORE, BASE_URL, ACCESS_TOKEN, AUTHORIZE, SOUNDS, DOWNLOAD, PACKS, SEARCH
 import json
 import requests
 import os 
@@ -8,6 +8,7 @@ from pathlib import Path
 from requests.exceptions import ChunkedEncodingError, ConnectionError
 from http.client import IncompleteRead
 from multiprocessing import Process
+from urllib.parse import urlencode
 
 
 class Client:
@@ -42,31 +43,6 @@ class Client:
         self.oauth2_code = token_data["access_token"]
         return token_data
 
-
-    def aoauth2_authorize(self):
-            oauth = OAuth2Session(self.client_key, redirect_uri='https://freesound.org/home/app_permissions/permission_granted/')
-
-            authorization_url, state = oauth.authorization_url(BASE_URL + AUTHORIZE)
-            webbrowser.open_new(authorization_url)
-
-            authorization_res=input('type in authorization code: ')
-            res = requests.post(
-                BASE_URL + ACCESS_TOKEN,
-                params = {
-                    'client_id': self.client_key,
-                    'client_secret': self.secret_key,
-                    'grant_type': 'authorization_code',
-                    'code': authorization_res
-                }
-            )
-
-            access_token = res.json()['access_token']
-            self.oauth2_code = access_token
-            return True
-
-    def filter_string(self, tags, sr, duration, format, channels):
-        return f"filter={self.parse_tags(tags)}{self.parse_duration(duration)}{self.parse_samplerate(sr)}{self.parse_format(format)}{self.parse_channels(channels)}"
-
     
     def parse_tags(self, tags):
         res_string = "" 
@@ -85,8 +61,8 @@ class Client:
         res_string += f"samplerate:{rate}%20"
         return res_string
 
-    def parse_format(self, format):
-        res_string = f"type:{format}%20"
+    def parse_format(self, form):
+        res_string = f"type:{form}%20"
         return res_string
 
     def parse_channels(self, channels):
@@ -100,6 +76,7 @@ class Client:
         params = {
             'fields': 'id,name',
             'page_size': page_size
+        
         }
 
         url = f"{BASE_URL}{PACKS}{pack_id}/{SOUNDS}"
@@ -107,6 +84,28 @@ class Client:
         data = res.json()
         sounds = [{'id': sound['id'], 'name': sound['name']} for sound in data.get('results')]
         return sounds
+
+    def get_sounds(self, page_size, query, tags, duration, sr, form, channels):
+
+        filter_string =  f"filter={self.parse_tags(tags)}{self.parse_duration(duration)}{self.parse_samplerate(sr)}{self.parse_format(form)}{self.parse_channels(channels)}"
+        headers = {
+            'Authorization': f'Token {self.secret_key}'
+        }
+        params = {
+            'fields': 'id,name',
+            'page_size': page_size,
+            'filter': filter_string,
+            'query': query
+        }
+        
+        url = f"{BASE_URL}{SEARCH}"
+        full_url = f"{url}?{urlencode(params)}"
+        print(full_url)
+        res = requests.get(url, params=params, headers=headers)
+        data = res.json()
+        sounds = [{'id': sound['id'], 'name': sound['name']} for sound in data.get('results')]
+        return sounds
+
 
 
 
