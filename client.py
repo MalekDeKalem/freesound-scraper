@@ -87,7 +87,7 @@ class Client:
 
     def get_sounds(self, page_size, query, tags, duration, sr, form, channels):
 
-        filter_string =  f"filter={self.parse_tags(tags)}{self.parse_duration(duration)}{self.parse_samplerate(sr)}{self.parse_format(form)}{self.parse_channels(channels)}"
+        filter_string = f"filter={self.parse_tags(tags)}{self.parse_duration(duration)}{self.parse_samplerate(sr)}{self.parse_format(form)}{self.parse_channels(channels)}"
         headers = {
             'Authorization': f'Token {self.secret_key}'
         }
