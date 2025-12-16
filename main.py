@@ -53,6 +53,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--max-length", default=15, type=int, help="the maximum length of the sound file")
     parser.add_argument("--min-length", default=0, type=int, help="the minimum length of the sound file")
+    parser.add_argument("--duration", type=str, help="Duration of the file you want in the FORMAT (begin,end)")
     parser.add_argument("-t", "--tags", nargs="*", default=DEFAULT_TAGS, help="the audio files will have either one of those tags in the defined list")
     parser.add_argument("-f", "--format", type=str, help="the audio files will have the defined format")
     parser.add_argument("-sr", "--sample-rate", type=int, help="the audio files will only have the samplerates specified")
