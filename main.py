@@ -51,7 +51,7 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--duration", type=float, nargs=2, help="Duration of the file you want in the FORMAT: begin,end")
-    parser.add_argument("-t", "--tags", nargs="*", default=DEFAULT_TAGS, help="the audio files will have either one of those tags in the defined list")
+    parser.add_argument("-t", "--tags", nargs="*", required=True, help="the audio files will have either one of those tags in the defined list")
     parser.add_argument("-f", "--format", type=str, help="the audio files will have the defined format")
     parser.add_argument("-sr", "--sample-rate", type=int, help="the audio files will only have the samplerates specified")
     parser.add_argument("-qu", "--query",type=str, help="the query used for searching")
